@@ -33,6 +33,14 @@ Aspectos cumplidos de la actividad propuesta por el profesor:
 ## 2. Información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
 Se utilizó la arquitectura presentada a continuación:
 
+Arquitectura Reto3:
+
+* ![image](https://github.com/dgonzalezt2/reto4-st0263/assets/81880494/a8af5c96-dfba-4f82-bcc6-078d4a51ad31)
+
+Arquitectura Reto4:
+
+* ![image](https://github.com/dgonzalezt2/reto4-st0263/assets/81880494/2d85cc0b-b271-40be-9567-92fd4f6525c9)
+
 ## 3. Descripción del ambiente de desarrollo y técnico: lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
 ## 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
