@@ -43,9 +43,160 @@ Arquitectura Reto4:
 
 ## 3. Descripción del ambiente de desarrollo y técnico: lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
+### deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: WORDPRESS_DB_NAME
+          value:  wordpress
+        - name: WORDPRESS_DB_HOST
+          value:  10.17.96.3:3306
+        - name: WORDPRESS_DB_USER
+          value: root
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-password-secret
+              key: password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "256m"
+          limits:
+            memory: "512Mi"
+            cpu: "512m"
+        volumeMounts:
+        - name: wordpress-nfs
+          mountPath: /var/www/html
+      volumes:
+      - name: wordpress-nfs
+        persistentVolumeClaim:
+          claimName: wordpress-nfs
+```
+
+### mysql-secret.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-password-secret
+type: Opaque
+data:
+  password: d3BwYXNzd29yZA==
+```
+
+### nfs.yaml
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wordpress-nfs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /nfs_telematica
+    server: 10.17.97.10
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wordpress-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeName: wordpress-nfs-pv
+```
+
+### managed-cert.yaml
+```yaml
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: managed-cert
+spec:
+  domains:
+    - reto3.me
+    - reto4.reto3.me
+```
+
+### nodeport.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: wordpress
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+### ingress.yaml
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: managed-cert-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: reto
+    networking.gke.io/managed-certificates: managed-cert
+    ingressClassName: "gce"
+spec:
+  defaultBackend:
+    service:
+      name: wordpress-nodeport
+      port:
+        number: 80
+```
+
 ## 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
 ## 5. Resultado final.
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/d081cdff-013a-4155-ac0c-c8c73d11ad65)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/e53713a7-75cc-42b2-b7f2-e1e2e4178aa5)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/2ac97f7a-ce5a-41d4-8a54-9f0429be97ba)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/78f8df95-117e-4c58-bb74-2da37aaf93dc)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/10e3d1d6-eff8-4dc4-8ee2-df64cdd8c193)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/1bf323c4-7829-4ee0-bd5d-cb7abe69fdf3)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/f3d387a8-c39c-498e-8c67-60588803ed8d)
+![image](https://github.com/dgonzalezt2/reto4-st0263/assets/82610906/8d6f70a7-a1ea-4251-b1ee-16ee9c36ea82)
+
+
 
 ## 6. Referencias.
 
